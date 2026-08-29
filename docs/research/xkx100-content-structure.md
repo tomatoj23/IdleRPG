@@ -1,0 +1,222 @@
+# 侠客行100（xkx100 MUD）内容组织模式与任务设计调研
+
+> 调研对象：`D:\My_Projects\xkx100-20201118`（金庸题材中文武侠 MUD，FluffOS 驱动，约 14000 文件 / 约 2000 房间 / 31 门派 / 700+ 武功）
+> 调研目的：为 IdleRPG（武侠放置游戏）的内容集合（martial/equipment/monster/dungeon/event/lore 等）设计提供语义参照。
+> 方法：先枚举目录树提取组织规律，再抽样精读区域（扬州城、少林寺、扬州郊外）、NPC（店小二/商人/师父/任务发布人）、物品（武器/任务品）、任务文件（韦小宝、单正、qwlist1、dynamic_quest）与帮助文本。本文只提取**内容语义**，不涉及 LPC 语法与继承机制。
+> 本文所有路径均相对 `xkx100-20201118/` 根目录。
+
+---
+
+## 一、区域（目录）如何划分与命名
+
+### 1.1 顶层目录按"内容角色"分类，而非按题材分类
+
+顶层目录各司其职（来源：根目录列举）：
+
+| 目录 | 内容角色 | 规模 |
+|------|----------|------|
+| `d/` | 世界空间：区域（房间+区域专属 NPC/物品） | ~9400 文件 |
+| `kungfu/class/` | 门派人物（师父/弟子 NPC，门派归属的组织层） | 31 个门派子目录 |
+| `kungfu/`（其余） | 武功技能（每门武功一个文件） | ~1380 文件 |
+| `clone/` | 可复用的通用物品/动物模板（按品类分子目录） | ~1100 文件 |
+| `quest/`、`questobj/` | 任务逻辑（NPC 形态的任务发布人）与任务道具 | 11 / 96 文件 |
+| `doc/help/` | 玩家帮助（每主题一个文件） | 167 文件 |
+
+### 1.2 区域目录：三类划分——城市 / 门派驻地 / 野外奇地
+
+`d/` 下约 90 个区域目录（来源：`d/` 目录列举），按拼音全拼命名，可分为三类：
+
+- **城市**：`city`（扬州，主城 585 文件）、`beijing`、`changan`、`chengdu`、`dali`、`hangzhou`、`suzhou`、`kaifeng`、`luoyang`、`xiangyang`、`fuzhou`、`quanzhou` 等。
+- **门派驻地**：`shaolin`（306）、`wudang`（158）、`emei`（161）、`gumu`（110）、`gaibang`（51）、`mingjiao`（206）、`heimuya`（108）、`taohua`（桃花岛 104）、`xiakedao`（侠客岛 189）等，目录名与门派 id 一致。
+- **野外/奇地**：`huangshan`、`taishan`、`changcheng`（长城）、`gaochang`（高昌迷宫）、`wuliang`（无量山）、`binghuo`（冰火岛）、`jueqinggu`（绝情谷）、`death`（阴间）、`village`（村庄）等。
+
+命名规律（来源：各目录文件名）：
+
+- 目录 id = 拼音或英文（`city` 例外，是主城惯用名）；文件 id = 场景拼音。
+- 城市内文件按**功能设施**命名：`shilijie1..7`（十里长街分段）、`yaopu`/`yaopu2`（药铺）、`kedian1..3`（客店）、`zahuopu`（杂货铺）、`qianzhuang`（钱庄）、`yamen`（衙门）、`wuguan`（武馆）、`shuyuan1..3`（书院）。
+- 同名场景用**数字后缀复制**（`jiaowai1..13` 郊外、`zoulang1..8` 走廊、`shijie1..11` 石阶）：线性通道与迷宫用编号序列铺出。
+- 门派内按**建筑功能域**命名：`shanmen`（山门）、`guangchang1..5`（广场）、`luohan1..9`（罗汉堂）、`cjlou`（藏经阁）、`fumoquan`（伏魔拳场）、`bamboo1..14`（竹林）等（来源：`d/shaolin/` 列举）。
+- 每个区域自带 `npc/` 与 `obj/` 子目录存放区域专属内容；跨区域复用内容放 `clone/`。
+
+### 1.3 关键模式：内容"就近放置"，人物"按门派集中"
+
+- 房间文件只引用内容的**路径**，内容本身可以放三处：区域专属（`d/<区>/npc/`）、门派人物（`kungfu/class/<门派>/`）、通用模板（`clone/<品类>/`）。例如 `d/shaolin/shanmen.c` 同室引用 `CLASS_D("shaolin")+"/xu-tong"`（门派目录）与 `/clone/misc/dache`（通用模板）。
+- 门派师父们不放在 `d/shaolin/npc/` 而集中在 `kungfu/class/shaolin/`（玄字辈/虚字辈/渡字辈 60+ 文件），因为师父是"门派系统"的资产而非"地图"的资产。
+- 同辈弟子以**字辈前缀 + 单字**命名（cheng-xin、dao-yi、xuan-bei），天然表达了辈分/等级序列（来源：`kungfu/class/shaolin/` 列举）。
+
+---
+
+## 二、房间文件的内容结构
+
+典型房间（`d/city/shilijie1.c`、`d/city/jiaowai1.c`、`d/shaolin/shanmen.c`）语义字段如下：
+
+| 语义字段 | 例子 | 说明 |
+|----------|------|------|
+| `short` 短名 | "十里长街"、"少林山门" | 一行名称，用于地图/消息 |
+| `long` 长描述 | 4~8 行白描+引诗 | 场景氛围文案，可内嵌 NPC 存在的暗示（"两位僧人手持戒刀守在山门两侧"） |
+| `exits` 出口表 | `west→xiaobaozhai, east→chaguan, south→shilijie2` | 方向→房间 id 的有向图边；方向带方位词可组合（`eastup` 东上） |
+| `objects` 放置表 | `{虚通:1, 虚明:1, 大车:1}` | 内容路径→数量；房间是"内容容器"，NPC/物品静态挂载 |
+| `outdoors` | `"yangzhouw"` | 室内/外标记（影响昼夜光照） |
+| `coor/x,y,z` | `(10,20,0)` | 世界坐标，供自动画图（`doc/map/` 121 个地图文件） |
+| 行为钩子 | `valid_leave` | 门禁规则：少林山门禁止女性入寺、外客不得持兵刃（`d/shaolin/shanmen.c`），拒绝文案也写在规则里，与 NPC 台词风格一致 |
+
+要点：
+- **房间 = 出口图节点 + 描述文案 + 放置清单 + 规则**，四件事，没有更多。
+- 描述文本与功能绑定：长描述里出现的元素（守门僧）就是 `objects` 里放置的 NPC——文案与数据互相印证。
+- 特殊房间（酒楼/赌场/镖局）在房间或 NPC 上挂小游戏/交易行为，但房间本体结构不变。
+
+---
+
+## 三、NPC 的内容结构
+
+### 3.1 通用字段（来源：`d/city/npc/xiaoer.c`、`kungfu/class/shaolin/xu-tong.c`、`xuan-bei.c`、`quest/weixiaobao.c`）
+
+| 语义字段 | 例子 | 说明 |
+|----------|------|------|
+| `set_name` 姓名与别名 | `("店小二", {"xiao er","xiao","waiter"})` | 中文名 + 玩家可用来指认的多个英文 id |
+| `title` / `nickname` 称号绰号 | "大清国抚远大将军·一等鹿鼎公" / "小白龙"；虚通绰号"知客僧" | 社会身份层，与姓名分离 |
+| `long` 描述 | 1~3 行外貌白描 | "白须白眉的老僧……双目湛然有神" |
+| `gender/age/class` | 男性 / 70 / "bonze"（僧人） | 社会属性，可作门禁判定依据（少林拒女客查 `gender`） |
+| `attitude` | friendly / peaceful / aggressive | 对玩家默认态度 |
+| 战力数值 | `combat_exp`（100~100 万）、四维 `str/int/con/dex`、气血/内力上限 | 数值即难度 |
+| `shen_type` 善恶 | 1（正）/ -1（邪） | 锄奸任务的目标筛选依据（`quest/shan.c`） |
+| `rank_info/respect` | "小二哥" | 称呼语料：NPC 对玩家的敬称插入台词模板 |
+
+### 3.2 三类 NPC 的扩展字段
+
+- **师父型**（`xuan-bei.c`）：`set_skill`（一整套门派武功及等级 150~220）、`map_skill`（招式映射）、`create_family("少林派", 36, "弟子")`（门派、辈分、身份）、`attempt_apprentice`（拜师条件逻辑：只收本派、俗家弟子限制）。→ 师父是"可学武功池 + 入门条件"的载体。
+- **商人型**（`d/city/npc/huoji.c`）：`vendor_goods`（商品路径清单，全部指向 `clone/medicine/nostrum/*` 等）。→ 商店库存是一张路径清单，商品本体在通用库。
+- **任务发布人型**（`quest/weixiaobao.c`）：`inquiry` 问答表（关键词→台词，如"康熙"→"那是我皇帝师父！"，构成剧情百科）、`add_action("give_quest","quest")`（领取指令）、`accept_object`（验收交物）、奖励结算（经验/潜能/江湖阅历，连续完成计数 `quest_num/wei`，里程碑特殊物品奖励）。
+- **氛围型**（店小二）：`greeting` 随机迎客台词 2 选 1 + 新手引导长段说教。→ 大量 NPC 只提供台词与氛围，零战力（`combat_exp` 100）。
+
+### 3.3 台词作为内容载体的三种用法
+
+1. 随机池台词（迎客 2 选 1）——`xiaoer.c`；
+2. 问答百科（`inquiry` 表，把小说人物关系变成可询问的图鉴）——`weixiaobao.c`；
+3. 规则拒绝文案（门禁时以 NPC 口吻输出理由）——`shanmen.c` 的 valid_leave。
+
+---
+
+## 四、物品的内容结构
+
+### 4.1 通用字段（来源：`d/city/obj/changjian.c`、`questobj/yitian-jian.c`、`questobj/redobj.c`、`questobj/qingshu.c`）
+
+| 语义字段 | 例子 | 说明 |
+|----------|------|------|
+| `set_name` | `("长剑", {"changjian","jian"})` | 中文名 + 英文别名 |
+| `unit` 量词 | 柄 / 把 / 封 / 只 | 中文量词语义 |
+| `long` 描述 | "这是一柄普通的精钢剑……" | 一句话外观+来历 |
+| `weight` 重量 | 5000（长剑）/ 300（情书）/ 80（红布小囊） | 影响携带 |
+| `value` 价值 | 1500（长剑）/ 0（倚天剑任务品）/ 1（红布小囊） | 商店买卖基准；任务品价值归零防止卖钱 |
+| `material` | steel | 材质标签 |
+| `wield_msg/unwield_msg` | "$N「唰」的一声抽出$n……" | 使用动作文案模板（$N=玩家，$n=物品） |
+| 品类继承语义 | SWORD / ITEM / 食物/药品 | 品类决定字段集：武器有伤害（`init_sword(25)`），食物有饱食度，药品有疗效 |
+
+### 4.2 物品库的品类组织（来源：`clone/` 目录列举）
+
+`clone/` 按品类分目录，天然就是一张**物品分类表**：weapon(183)/cloth(134)/book(155 武功秘籍)/medicine(122)/food(155)/armor(31)/jewelry(19)/animal(34)/gift(45 任务奖励品)/money/flower/misc。区域专属物品才放 `d/<区>/obj/`（如少林僧衣 `d/shaolin/obj/xu-cloth`）。
+
+### 4.3 任务品（questobj/）的语义
+
+96 个任务道具全部打 `set("taskobj", 1)` 标记（`questobj/yitian-jian.c`、`redobj.c`、`qingshu.c`）：
+- 名字取自小说情节（倚天剑、情书、红布小囊、十八泥偶）；
+- `value` 极低或为 0，`long` 写一句情节向描述；
+- 不承载战斗数值，纯粹是"被收集/被交给"的凭证。→ **任务品 = 带标记的纯叙事道具**，与普通物品同一文件格式，只多一个标记位。
+
+---
+
+## 五、任务设计模式
+
+### 5.1 任务类型全景：按经验段分层的一条"任务阶梯"（来源：`doc/help/mission`）
+
+帮助文件把全部任务按**适用经验段**排成阶梯（括号为经验区间）：
+
+| 层 | 任务 | 经验段 | 形态 |
+|----|------|--------|------|
+| 新手 | 打鸟 ms_daniao | 0–2k | 采集/杀小怪 |
+| 新手 | 烫布 ms_tangbu | 1k–5k | 生产 |
+| 入门 | 丐帮送信 ms_songxin | 100–3w | 跑腿 |
+| 入门 | 小宝寻物 ms_xiaobao | >1k | 寻物 |
+| 中期 | 搬麻袋/采石/分药 | 5k–10w | 生产循环 |
+| 中期 | 扬州捕快/海捕文书/护送人质 | >5w | 抓捕/护送 |
+| 高期 | 锄奸杀邪 ms_shan | 10w–1kw | 击杀 |
+| 高期 | 保护镖车/保卫襄阳/守城 | >10w | 团队防御 |
+| 终局 | 挑战掌门/大宗师 ms_zhangmen | 顶层 | 单挑 |
+| 特殊 | 宝物任务/寻访隐士/行医/飞贼 | 无门槛 | 稀有触发 |
+
+规律：**任务类型 × 经验门槛 = 玩家生命周期地图**。每种任务有明确的数值适用区间，同一玩家不同阶段做不同任务，而不是一条主线从头跑到尾。
+
+### 5.2 触发与验收模式（来源：`quest/weixiaobao.c`、`shan.c`、`doc/help/ms_baobiao`）
+
+- **触发**：走到发布人身旁输入指令（`quest`）或对话关键词（`ask lin about 押镖`）。任务不预挂在世界里，全部由发布人 NPC 即时生成。
+- **领取门槛**：经验下限（韦小宝 1000）、善恶值/声望检查（`meili`/`weiwang` 非负）、疲劳冷却（完成后 `busy_exp` 门槛起步再涨经验才能再接）。
+- **验收**：`accept_object` 比对交来的物品名与任务目标串；超时交货→话术安慰但任务作废；花钱取消→按经验分档收费（1000~50000 文），且 1/20 概率触发声望惩罚。
+- **取消的互斥设计**：单正处取消任务会随机把你"推荐"去接另外三种任务之一（`quest/shan.c` cancel_quest → lock_quest）——任务系统之间有互斥锁，防止同时刷多线。
+
+### 5.3 奖励结构（来源：`weixiaobao.c` accept_object、`doc/help/mission`）
+
+- 三通货：**经验**（combat_exp）、**潜能**（potential，可转化为技能）、**江湖阅历**（score，社会进度）。随机区间给奖励（`10+random(10)`）。
+- **连击式累计**：连续完成计数，每 50/100/150 个触发"难任务 + 特殊物品奖励"（GIFT_DIR `/clone/gift/` 45 种奖品）。
+- **衰减机制**：经验超过上限后奖励减半——防止无限刷。
+- ** reputation 惩罚**：频繁取消/失败掉 `weiwang`/`meili`，反向锁任务资格。
+- 镖车类团队任务：押金（20 两黄金）+ 失败罚金（10 两）+ 交镖奖励，用金钱对冲风险（`ms_baobiao`）。
+
+### 5.4 任务内容 = 名词清单，不是剧情脚本（来源：`quest/qwlist1.c`、`dynamic_quest`）
+
+- 韦小宝寻物任务的"任务库"是三张物品名单：`quest1` 简单（洞庭鱼、马奶酒壶……）、`quest2` 普通（书信、各派秘籍……）、hard 高难。按完成序号选池（前 5 个必简单、每 50 个必难、其余普通）。
+- `dynamic_quest`（95 项）同样是"物品名 → 持有 NPC"的对应表，物品随机散布世界，玩家按线索找。
+- **没有主线剧情脚本**：所谓"主线"是任务阶梯的顺序暗示；每个任务只是（发布人、目标名词、时限、奖励）四元组。剧情感全部由发布人台词与物品名承载（问韦小宝"康熙"他会说"那是我皇帝师父！"）。
+
+### 5.5 questobj 的作用
+
+任务道具库（96 个文件）是任务四元组中"目标名词"的实例化仓库：所有带 `taskobj` 标记，无战斗属性，描述只有一句情节梗概。价值归零防止经济套利。好处是把"任务目标"从任务逻辑里剥离成独立可枚举的内容资产——**任务逻辑只认名字与标记，不认物品实现**。
+
+---
+
+## 六、帮助文本的组织（对"图鉴/说明"的参考）
+
+结构（来源：`doc/help/` 167 个文件，`help/topics` 索引）：
+
+- **一主题一文件，纯文本**：`mission`、`shaolin`、`newbie`、`rules`……无扩展名，文件名即主题 id。玩家 `help mission` 直达。
+- **命名前缀分族**：
+  - `ms_*`（24 个）：全部任务类型的说明，与任务系统一一对应；
+  - `newbie-*`（30 个）：新手引导按门派分册（newbie-shaolin、newbie-gaibang……）；
+  - 城市名（yangzhou、dali……）：区域介绍即图鉴条目；
+  - 门派名（shaolin、wudang……）：门派图鉴。
+- **索引即总览**：`doc/help/mission` 用一张 ASCII 表列出全部任务（名称+经验段+主题 id），本身就是一份"任务图鉴"。
+- **出口埋进内容**：店小二的迎客词里直接教玩家 `help intro` / `help newbie` / `map all`（`d/city/npc/xiaoer.c`）——引导文案与帮助索引互相引用。
+- 另有 `doc/map/`（121 个地图文件）、`doc/legend/`（37 个传说/背景文本）——**地图与 lore 也是内容资产**。
+
+---
+
+## 七、对 IdleRPG 内容设计的启示
+
+对照 IdleRPG 的 `content/` 规划（martial / equipment / monster / dungeon / event / lore 等集合）：
+
+1. **按内容角色分层，而不是按系统分层**。xkx100 的顶层划分（世界空间 d/ / 门派人物 kungfu/class/ / 通用物品 clone/ / 任务 quest/ + questobj/ / 帮助 doc/help/）证明：把"会复用的通用内容"与"绑死在某个场景/门派的内容"物理分开，是海量内容的可维护前提。对应到 IdleRPG：`martial/`、`equipment/`、`monster/` 放通用集合；门派专属武功/怪可以按门派分子目录（xkx100 用 `kungfu/class/<门派>/` 一致地做到了）；秘境（dungeon）内部怪物用"区域专属子目录"就近组织。
+
+2. **门派即"武功池 + 入门条件 + 辈分序列"三件套**。xkx100 师父 NPC 承载的三件事，在 IdleRPG 中应拆成 `martial/` 中按门派标注的可学池、门派配置中的入门条件、以及字辈式命名所暗示的**品阶序列**。少林"澄→道→玄"字辈与 IdleRPG 黄/玄/地/天四阶武功是同构的——内容文件名/字段里显式编码品阶，而不是隐含在数值里。
+
+3. **任务 = 四元组 + 名词清单，而非剧情脚本**。IdleRPG 的 `event/` 集合可以直接借用 xkx100 模式：事件定义（触发人、目标物 id、时限、奖励区间）与目标物清单（对应 `questobj/`，一个"纯叙事道具"集合，`value` 不进经济）分离。奖励三通货（修为/潜能/贡献）+ 连续完成里程碑 + 刷取衰减，是放置游戏日循环任务可直接抄的数值骨架。
+
+4. **任务阶梯按进度区间显式分层**。xkx100 的 `mission` 索引把每种任务标注经验段（0–2k / 5k–2w / 10w–1kw）。IdleRPG 的境界序列（不入流→宗师）应作为 `event/` 与 `dungeon/` 每个条目的显式字段（适用境界区间），使内容表本身构成玩家生命周期地图，且校验器可以检查每个境界段都有内容覆盖。
+
+5. **NPC 台词三用：氛围/百科/规则文案**。IdleRPG 虽无 NPC 交互，但 xkx100 的 `inquiry` 问答表（关键词→情节台词）正是 `lore/` 集合的天然形态：lore 条目 = 关键词 + 文本，可被图鉴、事件文本、物品描述三方引用；物品使用动作文案（wield_msg 模板）对应 IdleRPG 装备/丹药的结算播报文案，应作为内容字段而非硬编码。
+
+6. **帮助 = 一主题一文件 + 前缀分族 + 索引即图鉴**。IdleRPG 的图鉴/说明系统可由内容集合自动生成：每个集合（martial/equipment/…）天然对应一个帮助分册（对应 ms_*/newbie-* 前缀分族），集合条目聚合即索引页（对应 mission 表）。文案写在内容里，图鉴只是视图。
+
+7. **标记位代替特殊类型**。xkx100 用一个 `taskobj:1` 标记把普通物品变成任务品，避免了独立的"任务物品类型"。IdleRPG 内容条目建议采用"基础条目 + 标签集"形态（如物品加 `tags:["quest"]`），保持 Schema 三处同步成本最低。
+
+8. **坐标与连通性是空间内容的一等公民**。xkx100 房间的 `coor/x,y,z` + `exits` 让 121 张地图自动生成。IdleRPG 秘境（dungeon）的层数、解锁链同样应是显式字段（`unlocks: <下一层 id>`），供校验器检查连通性闭环。
+
+---
+
+## 附：抽样清单
+
+- 区域：`d/city/`（扬州，含 npc/obj/task 子目录）、`d/shaolin/`、`d/city/jiaowai1.c`（野外）
+- 房间：`d/city/shilijie1.c`、`d/city/jiaowai1.c`、`d/shaolin/shanmen.c`
+- NPC：`d/city/npc/xiaoer.c`（氛围/商人）、`d/city/npc/huoji.c`（商人格式）、`kungfu/class/shaolin/xu-tong.c`（低级弟子）、`kungfu/class/shaolin/xuan-bei.c`（师父）
+- 物品：`d/city/obj/changjian.c`、`questobj/yitian-jian.c`、`questobj/qingshu.c`、`questobj/redobj.c`
+- 任务：`quest/weixiaobao.c`、`quest/shan.c`、`quest/qwlist1.c`、`doc/help/ms_baobiao`、`doc/help/ms_xiaobao`
+- 帮助：`doc/help/` 全目录枚举、`doc/help/mission`
+- 既有总览：`doc/XKX100_GAME_CONTENT_GUIDE.md`（MUD 自带内容指南，与本报告结论互证）
