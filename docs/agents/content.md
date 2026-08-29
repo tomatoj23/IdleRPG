@@ -6,6 +6,8 @@
 
 ```
 content/
+├── config/           # 结构性配置：realms、activities、resources、settings 等
+│                     #   （境界序列、曲线、槽位、阈值——引擎零写死数量的载体）
 ├── martial/          # 武功（招式 + 心法），字段 kind 区分
 ├── equipment/        # 装备基件与词缀池
 ├── monster/          # 怪物
@@ -14,9 +16,10 @@ content/
 ├── pill/             # 丹方与丹药
 ├── sect/             # 门派
 ├── event/            # 奇遇事件文本
+├── combat-text/      # 战斗文本模板与四档后果词库
 ├── lore/             # 世界观长文本（Markdown）：故事背景、势力关系等
 └── style-guide.md    # 文风指南：叙事字段必须遵守
-schemas/              # 与 content/ 一一对应的 JSON Schema
+schemas/              # 与 content/ 一一对应的 JSON Schema（含 config/）
 assets/               # 美术资产（MVP 允许为空）
 ├── icons/<集合>/<id>.png
 └── portraits/<集合>/<id>.png
@@ -24,7 +27,7 @@ assets/               # 美术资产（MVP 允许为空）
 
 ## 硬性规则
 
-- **id 一经发布不可变更**：资产路径、存档引用都依赖它。命名格式 `<集合缩写>-<门派/区域>-<序号>`，如 `mrt-hs-001`（华山招式 1）、`mon-sy-014`（山魈 14）。id 只用小写字母、数字、连字符。
+- **id 一经发布不可变更**：资产路径、存档引用都依赖它。条目集合命名格式 `<集合缩写>-<门派/区域>-<序号>`，如 `mrt-hs-001`（华山招式 1）、`mon-sy-014`（山魈 14）；**config 集合豁免序号段**，用 `<类别>-<序号>` 或语义名（如 `realm-01`、`act-seclusion`、`res-cultivation`）。id 只用小写字母、数字、连字符。
 - 每个条目必须通过对应 Schema 校验后才能提交。校验命令：`npm run content:check`。
 - 叙事字段（`description`、事件文本等）必须遵守 `content/style-guide.md` 的武侠语体；世界背景类长文写入 `content/lore/*.md`。
 - 资产不内嵌 base64、不写绝对路径；引用走约定路径，确需覆盖时用条目的 `art` 字段（相对 `assets/` 的路径）。

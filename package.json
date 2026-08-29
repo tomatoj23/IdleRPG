@@ -1,0 +1,16 @@
+{
+  "name": "idlerpg",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "content:check": "node scripts/check-content.mjs",
+    "test": "pnpm --filter @idlerpg/core test",
+    "typecheck": "corepack pnpm -r --if-present run typecheck",
+    "dev:web": "pnpm --filter @idlerpg/web dev"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "ajv": "^8.17.0",
+    "typescript": "^5.6.0"
+  }
+}

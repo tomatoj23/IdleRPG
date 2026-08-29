@@ -1,0 +1,9 @@
+{
+  "activities": [
+    {
+      "id": "act-seclusion",
+      "name": "闭关修炼",
+      "rates": [{ "resourceId": "res-cultivation", "perSecond": 0.0556 }]
+    }
+  ]
+}

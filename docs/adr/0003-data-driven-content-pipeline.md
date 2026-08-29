@@ -19,3 +19,4 @@
 - 所有内容条目的 `id` 一旦发布即不可变（资产路径、存档引用都依赖它），重命名等于破坏性变更。
 - Schema 变更需同步三处：`core` 校验器、编辑器表单、`docs/agents/content.md` 的字段说明。
 - `npm run content:check` 是内容进入 git 的必要条件（CI / pre-commit 可挂）。
+- **校验分层**（2026-08 修订）：JSON Schema 校验由管线门禁 `content:check`（构建/CI）执行；引擎 `ContentRegistry` 在加载时强制引用完整性（未知引用、重复 id 即抛错）。即"不合法内容报错"由两层共同保证，不在 core 内重复实现完整 Schema 校验。
