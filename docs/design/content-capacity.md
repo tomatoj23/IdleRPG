@@ -1,6 +1,12 @@
 # 内容承载力分析：IdleRPG 规划 vs xkx100 内容资产
 
-> **状态**：本轮决策记录，**尚未整合**进 `CONTEXT.md` 与 ADR。待后续决定是否并入（可能的落地形式：ADR 修订 + 术语表补充 + `docs/agents/content.md` 字段说明）。
+> **状态**：✅ **已整合**（2026-08-30）——
+> - 术语（品阶 / 显示档位 / 前置 / 归属）与命名语汇 → `CONTEXT.md`，旧语汇（黄/玄/地/天、传说/魔法）列入 Avoid
+> - 承载边界决策 → `docs/adr/0008-content-capacity-boundary.md`
+> - 字段约定与标签化原则 → `docs/agents/content.md`
+> - 命名语汇同步 → `content/style-guide.md`、`docs/adr/0005`、`docs/research/ui-gen-prompts.md`
+>
+> 本文件保留为分析记录（缺口矩阵与决策依据），不再作为唯一决策来源。
 > 依据：`docs/research/xkx100-kungfu-combat.md`、`docs/research/xkx100-content-structure.md`。
 > 决策日期：2026-08-30。
 
