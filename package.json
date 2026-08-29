@@ -2,6 +2,7 @@
   "name": "idlerpg",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.24.0",
   "scripts": {
     "content:check": "node scripts/check-content.mjs",
     "test": "pnpm --filter @idlerpg/core test",

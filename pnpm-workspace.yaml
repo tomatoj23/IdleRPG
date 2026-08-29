@@ -2,5 +2,9 @@ packages:
   - packages/*
   - apps/*
 
+# Fully self-contained dependency environment (no machine-level state):
+# the package store lives inside the project, not on the drive root.
+storeDir: .pnpm-store
+
 onlyBuiltDependencies:
   - esbuild
