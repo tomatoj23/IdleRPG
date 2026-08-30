@@ -3,7 +3,7 @@ import type { Game } from "@idlerpg/core";
 import { buildContentRegistry, loadGame, resetSave } from "./game/loader.js";
 
 interface View {
-  stageName: string;
+  realmName: string;
   current: number;
   cap: number;
   activityName: string | null;
@@ -38,7 +38,7 @@ export default function App() {
           const progress = game.progress();
           const activity = game.activeActivity();
           setView({
-            stageName: realm.name,
+            realmName: realm.name,
             current: progress.current,
             cap: progress.cap,
             activityName: activity?.name ?? null,
@@ -98,7 +98,7 @@ export default function App() {
     <main style={{ maxWidth: 480, margin: "48px auto", fontFamily: "system-ui, sans-serif" }}>
       <h1 style={{ fontSize: 24 }}>IdleRPG</h1>
       <section style={{ border: "1px solid #ccc", borderRadius: 8, padding: 16 }}>
-        <p>当前境界：{view.stageName}</p>
+        <p>当前境界：{view.realmName}</p>
         <p>
           进度：{view.current} / {view.cap}（{percent}%）
         </p>

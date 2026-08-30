@@ -3,7 +3,7 @@ import { SAVE_VERSION, migrateSnapshot } from "../src/save/migrations.js";
 
 describe("migrateSnapshot", () => {
   it("passes through snapshots at the current version", () => {
-    const data = { stageId: "stage-01", resources: { a: 1 }, activeActivityId: null, lastAccrualTimestamp: 5 };
+    const data = { realmId: "realm-01", resources: { a: 1 }, activeActivityId: null, lastAccrualTimestamp: 5 };
     const out = migrateSnapshot<typeof data>({ version: SAVE_VERSION, data });
     expect(out).toEqual(data);
   });

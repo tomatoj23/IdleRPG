@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
  * host UI copy — never here.
  */
 const THEME_PATTERN =
-  /修为|闭关|境界|宗师|绝顶|不入流|秘籍|丹|秘境|装备|武器|招式|心法|门派|洗练|分解|江湖|武侠|奇遇|采集|炼丹|武功|流派|贡献/;
+  /修为|闭关|境界|宗师|绝顶|不入流|秘籍|丹|秘境|装备|武器|招式|心法|门派|洗练|分解|江湖|武侠|奇遇|采集|炼丹|武功|流派|贡献|品阶|下乘|中乘|上乘|绝学|稀有度|寻常|精良|罕见|绝世|词缀|底材|丹方|药材|贡献/;
 
 function listSourceFiles(dir: string): string[] {
   const out: string[] = [];

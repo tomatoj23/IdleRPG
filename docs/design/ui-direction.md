@@ -12,10 +12,12 @@
 
 | 屏 | 文件 |
 |---|---|
-| 桌面 16:9 主界面（修炼/闭关） | `approved/desktop-cultivation.png` |
-| 桌面 16:9 对峙式战斗 | `approved/desktop-battle.png` |
-| 移动 9:16 秘境列表 | `approved/mobile-dungeon-list.png` |
-| 移动 9:16 角色养成 | `approved/mobile-loadout.png` |
+路径均相对于仓库根的 `docs/research/ui-mockups/`：
+
+| 桌面 16:9 主界面（修炼/闭关） | `docs/research/ui-mockups/approved/desktop-cultivation.png` |
+| 桌面 16:9 对峙式战斗 | `docs/research/ui-mockups/approved/desktop-battle.png` |
+| 移动 9:16 秘境列表 | `docs/research/ui-mockups/approved/mobile-dungeon-list.png` |
+| 移动 9:16 角色养成 | `docs/research/ui-mockups/approved/mobile-loadout.png` |
 
 ## 二、布局骨架
 
