@@ -10,13 +10,14 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "rates"],
+        "required": ["id", "name"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
           "name": { "type": "string", "minLength": 1 },
           "rates": {
             "type": "array",
-            "minItems": 1,
+            "minItems": 0,
+            "description": "直接产出资源；产出为物品（如药材）的活动可为空数组",
             "items": {
               "type": "object",
               "additionalProperties": false,
@@ -25,6 +26,15 @@
                 "resourceId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
                 "perSecond": { "type": "number", "exclusiveMinimum": 0 }
               }
+            }
+          },
+          "progression": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["maxLevel", "xpPerCycle"],
+            "properties": {
+              "maxLevel": { "type": "integer", "minimum": 1 },
+              "xpPerCycle": { "type": "number", "exclusiveMinimum": 0 }
             }
           }
         }

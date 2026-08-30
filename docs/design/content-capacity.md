@@ -28,7 +28,7 @@
 | 武功：招式表 + 学习前置 + 四维效果区间 + 伤害类型 | `content/martial/`（kind / 品阶 / 标签 / 冷却） | 无前置、无伤害类型、无效果区间 | 加 `prerequisites` 与 `damageType` 两字段；效果数值**生成期静态化**（品阶×招式序号经 config 公式算好写入），运行时修饰符只读 |
 | NPC 四类（师父/商人/任务发布人/氛围） | 只有 `monster/` | 无 NPC 概念 | 不立集合。师父 = `sect/` 条目的 `masters` 字段（承载可教武功池与贡献规则）；氛围怪靠 monster `tags` 表达；商人与任务发布人 MVG 不做 |
 | 任务四元组 + 24 种阶梯 + questobj | 无 | MVP 不做 | 不预留 schema（任务形态未定，预留大概率返工）；吸收模式：**纯叙事道具 = 普通条目 + `tags:["quest"]` + 价值归零**（标签代替特殊类型） |
-| 知识/生活技能 30 余种 | `activities` config（无等级） | 无技能等级 | activities 条目加 `level` / `xp` 字段（顺带满足 #6 采药区按等级解锁）；读书医术类明确不做 |
+| 知识/生活技能 30 余种 | `activities` config（无等级） | 无技能等级 | activities 条目加 `progression`（`maxLevel` + `xpPerCycle` 等级参数，玩家等级与经验存存档，不进内容）；读书医术类明确不做 |
 | 品阶显示 50 档 | 无显示档位概念 | 数值→中文描述的推导 | config 加 `displayTiers`（数值区间 → 中文造诣名），战斗文本与 UI 实时推导，与掉落品级**正交** |
 | 内容三层放置（通用/门派/区域） | `content/` 平铺集合 | 无归属维度 | 保持平铺 + 条目 `sectId` / `regionId` 字段 + 校验器检查覆盖与连通（不做子目录分层，便于编辑器与 agent 批量操作） |
 | 图鉴自动生成（一集合一分册） | 无 | 功能缺口 | 新增 backlog 票（依赖 #15 编辑器或独立小票），schema 无需改动 |
@@ -40,7 +40,7 @@
 1. **武功 schema 轻量扩展**：加 `prerequisites`（先修武功 + 等级）与 `damageType`（割/刺/瘀/内伤/抓伤），效果数值生成期静态化
 2. **不立 NPC 集合**：师父归 `sect.masters`，氛围定位走 monster `tags`
 3. **不预留任务 schema**：吸收“标签代替特殊类型”原则进 `docs/agents/content.md`
-4. **activities 加等级**：`level` / `xp`，服务采药区解锁；知识类技能不做
+4. **activities 加等级参数**：内容侧 `progression`（`maxLevel` / `xpPerCycle`），玩家等级与经验存存档；服务采药区解锁；知识类技能不做
 5. **显示档位与掉落品级正交**：config `displayTiers` 推导，不动掉落体系
 6. **内容平铺 + 归属字段**：`sectId` / `regionId`，校验器做覆盖与连通检查
 7. **图鉴自动生成进 backlog**：新增票，不阻塞现有票
