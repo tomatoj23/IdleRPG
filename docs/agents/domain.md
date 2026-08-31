@@ -12,31 +12,25 @@ If any of these files don't exist, **proceed silently**. Don't flag their absenc
 
 ## File structure
 
-Single-context repo (most repos):
+Monorepo (pnpm workspaces), single context (one `CONTEXT.md` at the repo root):
 
 ```
 /
+├── AGENTS.md
 ├── CONTEXT.md
-├── docs/adr/
-│   ├── 0001-event-sourced-orders.md
-│   └── 0002-postgres-for-write-model.md
-└── src/
+├── content/                      # game content (JSON); schema drafts in schemas/
+├── docs/
+│   ├── adr/                      # decision records
+│   ├── agents/                   # agent pipeline conventions
+│   └── research/                 # research notes（docs/design/ 已废弃，勿参考）
+├── schemas/                      # content JSON Schema drafts
+├── apps/                         # applications
+│   ├── web/                      # game frontend
+│   └── editor/                   # content editor (dev-time)
+└── packages/                     # libraries (engine `core` planned here)
 ```
 
-Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
-
-```
-/
-├── CONTEXT-MAP.md
-├── docs/adr/                          ← system-wide decisions
-└── src/
-    ├── ordering/
-    │   ├── CONTEXT.md
-    │   └── docs/adr/                  ← context-specific decisions
-    └── billing/
-        ├── CONTEXT.md
-        └── docs/adr/
-```
+**Path conventions**: applications live in `apps/<name>/`, libraries in `packages/<name>/`; cross-package imports use `workspace:*`; relative paths always resolve from the repo root (`apps/`, `packages/`, `content/`) — there is no top-level `src/`. A multi-context repo would keep one `CONTEXT.md` per package plus a root `CONTEXT-MAP.md`, with context-scoped ADRs under `docs/adr/` inside each package.
 
 ## Use the glossary's vocabulary
 

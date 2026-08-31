@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pill.schema.json",
+  "title": "丹方与丹药（content/pill/，每条目一文件）",
+  "description": "丹方 = 需解锁后才能炼制的配方；丹药分突破丹（境界突破硬门槛）与增益丹（临时 buff）。生产链：采集 → 药材 → 炼丹（CONTEXT.md 丹方/突破丹/增益丹词条）。由 oneOf 分流。",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/definitions/recipe" },
+    { "$ref": "#/definitions/medicine" }
+  ],
+  "definitions": {
+    "recipe": {
+      "title": "丹方",
+      "type": "object",
+      "required": ["id", "kind", "name", "inputs", "output"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^pill-recipe-[a-z0-9-]+$",
+          "description": "如 pill-recipe-xiaohuan（小还丹方）"
+        },
+        "kind": { "const": "recipe" },
+        "name": { "type": "string", "minLength": 1 },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "description": "消耗药材（content/herb/ 的 id）与数量",
+          "items": {
+            "type": "object",
+            "required": ["herbId", "amount"],
+            "properties": {
+              "herbId": { "type": "string" },
+              "amount": { "type": "integer", "minimum": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "output": { "type": "string", "description": "产出丹药 id（本集合的 medicine 条目）" },
+        "unlock": {
+          "type": "object",
+          "description": "解锁途径：战斗掉落 或 门派贡献兑换（CONTEXT.md 丹方词条）",
+          "properties": {
+            "sources": { "type": "array", "items": { "type": "string" } },
+            "contributionCost": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "craftSeconds": { "type": "integer", "minimum": 0 },
+        "description": { "type": "string", "description": "叙事文本，须遵守 content/style-guide.md" }
+      },
+      "additionalProperties": false
+    },
+    "medicine": {
+      "title": "丹药",
+      "type": "object",
+      "required": ["id", "kind", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^pill-[a-z0-9-]+$",
+          "description": "如 pill-xiaohuan（小还丹）。注意与 recipe 前缀区分。"
+        },
+        "kind": { "const": "medicine" },
+        "name": { "type": "string", "minLength": 1 },
+        "category": {
+          "type": "string",
+          "description": "突破丹 | 增益丹（CONTEXT.md）。取值可扩充，schema 不写死。"
+        },
+        "isBreakthrough": {
+          "type": "boolean",
+          "description": "是否突破丹：境界突破的硬门槛材料之一，是炼丹链与境界主轴的焊接点（CONTEXT.md 突破丹词条）"
+        },
+        "modifiers": {
+          "type": "array",
+          "description": "增益丹的临时加成，走修饰符聚合管线（ADR-0005），禁止直改属性",
+          "items": { "type": "object" }
+        },
+        "durationMs": { "type": "integer", "minimum": 0, "description": "增益持续时间（战斗或闭关效率加成）" },
+        "art": { "type": "string" },
+        "description": { "type": "string", "description": "叙事文本，须遵守 content/style-guide.md" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

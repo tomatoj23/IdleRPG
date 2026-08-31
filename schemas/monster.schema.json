@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "monster.schema.json",
+  "title": "怪物（content/monster/，每条目一文件）",
+  "description": "怪物 = 秘境中的敌对实体（CONTEXT.md 怪物词条；战斗支持 1vN，1v1 为特例）。防御侧：亲和度（config 字段）+ 效果抵抗（条件修饰符）；玩家侧不设分系抗性（ADR-0009）。",
+  "type": "object",
+  "required": ["id", "name", "stats"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^mon-[a-z0-9]+-[0-9]{3}$",
+      "description": "如 mon-sy-014（山魈 14）。id 一经发布不可变更。"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "叙事称呼（如\"黑衣人\"）。⚠️ 叙事文本中按形象称呼，不直呼\"怪物\"（CONTEXT.md）"
+    },
+    "regionId": { "type": "string", "description": "区域归属，校验器据此检查覆盖与连通（content.md）" },
+    "role": {
+      "type": "string",
+      "description": "普通 | 精英 | 层主。层主 = 秘境每波主怪，带机制用现有 primitive 组合，不新增引擎能力（content.md）；精英与层主不进随机池（BRIEF §8.2）。"
+    },
+    "source": {
+      "type": "string",
+      "description": "怪物攻击的作用方式（内功/外功）——怪物攻击也标注 source（ADR-0009）"
+    },
+    "affinities": {
+      "type": "object",
+      "description": "系别亲和度：{ fire: -50, water: +30 }。只给 Boss 与特色怪设置，普通怪为 0（CONTEXT.md 亲和度词条）。键取值来自 dimensions 的 element 维度。",
+      "additionalProperties": { "type": "number" }
+    },
+    "stats": {
+      "type": "object",
+      "description": "基础数值（可由境界/层数缩放的参数在 config，不写死在条目）",
+      "required": ["maxHp"],
+      "properties": {
+        "maxHp": { "type": "number", "minimum": 1 },
+        "attack": { "type": "number", "minimum": 0 },
+        "externalDefense": { "type": "number", "minimum": 0, "description": "外功防御（旧名「护甲」已废弃）" },
+        "internalDefense": { "type": "number", "minimum": 0, "description": "内功防御" },
+        "dodge": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": true
+    },
+    "effects": {
+      "type": "array",
+      "description": "效果引用列表，指向 content/effects/；与武功共用同一批效果定义",
+      "items": { "type": "string" }
+    },
+    "tags": {
+      "type": "object",
+      "description": "维度键（对象形态），取值来自 dimensions",
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "art": { "type": "string", "description": "覆盖默认 assets/portraits/monster/<id>.png 时的相对路径" },
+    "description": {
+      "type": "string",
+      "description": "叙事描述（1~3 句），须遵守 content/style-guide.md"
+    }
+  },
+  "additionalProperties": false
+}

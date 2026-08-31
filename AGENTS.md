@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Start here
+
+**先读 `docs/HANDBOOK.md`** —— 统一总览：文档地图与权威层级、三条硬标准、核心定案速查（境界 / 显示档位 / 伤害模型 / 内力 / 战斗文本 / 秘境与掉落 / 装备槽 / 内容管线）、MVP 范围与当前状态。读完再按需进各专项文档。
+
 ## Environment（硬性标准）
 
 依赖环境必须完全自包含于本项目，**禁止改动本机任何已有环境**：
@@ -22,3 +26,7 @@ Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agent
 ### Content pipeline
 
 Game content lives as JSON files under `content/`, validated by JSON Schema (`npm run content:check`). Batch edits by agents must follow `docs/agents/content.md` and the style guide at `content/style-guide.md`.
+
+> **Note**: `npm run content:check` is the committed pipeline contract (ADR-0003); the script ships with the monorepo scaffold, not in the current docs-only phase (`schemas/` are design drafts until then).
+> `docs/design/` is **deprecated** early exploration docs (visual direction only) — do not read or maintain it.
+> **Authoritative docs (descending precedence)**: `CONTEXT.md` (glossary) / `docs/agents/content.md` (content pipeline) > `docs/adr/` > `content/style-guide.md` (writing style) > `docs/design-spec-BRIEF.md` (**fallback / lowest**: defer to it only when the content exists nowhere else; on any conflict the higher-precedence doc wins).

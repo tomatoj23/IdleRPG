@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "config.settings.schema.json",
+  "title": "全局阈值与公式常数（content/config/settings.json）",
+  "description": "引擎通过内容注册表取参数，零写死。本集合是各类公式常数、上限、倍率、默认策略的唯一载体：改动它就能调平衡，不动引擎。所需参数清单见 docs/design-spec-BRIEF.md §10.3（12 项数值 + 映射表）与 §10.4（纯数值）。",
+  "type": "object",
+  "required": ["id"],
+  "properties": {
+    "id": { "type": "string", "const": "settings" },
+    "defense": {
+      "type": "object",
+      "description": "减伤 = 防御 / (防御 + K)（BRIEF §3.1、CONTEXT.md 内功防御/外功防御词条）",
+      "properties": { "k": { "type": "number", "minimum": 0 } },
+      "additionalProperties": false
+    },
+    "dodge": {
+      "type": "object",
+      "description": "闪避基础 5-10%、上限约 40%、递减 闪避/(闪避+K)（BRIEF §3.8）",
+      "properties": {
+        "base": { "type": "number", "minimum": 0, "maximum": 1 },
+        "cap": { "type": "number", "minimum": 0, "maximum": 1 },
+        "k": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "resistance": {
+      "type": "object",
+      "description": "玩家抗性上限（-75%，走乘法区递减）。抗性 = 条件修饰符，不是属性（ADR-0009）。",
+      "properties": { "cap": { "type": "number", "maximum": 0 } },
+      "additionalProperties": false
+    },
+    "internalForce": {
+      "type": "object",
+      "description": "内力：按秒持续回复；稳态 DPS 离线 O(1) 结算（ADR-0010）",
+      "properties": {
+        "regenPerSecond": { "type": "number", "minimum": 0 },
+        "baseMax": { "type": "number", "minimum": 0 },
+        "zeroCostAttackRatio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "内力耗尽后零消耗基础攻击相对正常输出的系数（输出下降但不归零）"
+        }
+      },
+      "additionalProperties": false
+    },
+    "crit": {
+      "type": "object",
+      "properties": {
+        "baseRate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "multiplier": { "type": "number", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "loot": {
+      "type": "object",
+      "description": "掉落链参数（ADR-0012）：8 步管线中第①④⑦步的取值",
+      "properties": {
+        "dropChance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "rarityWeights": {
+          "type": "array",
+          "description": "各稀有度权重（索引即稀有度序号：0 寻常 / 1 精良 / 2 罕见 / 3 绝世；中文名见 CONTEXT.md 稀有度词条）",
+          "items": { "type": "number", "minimum": 0 }
+        },
+        "affixCountByRarity": {
+          "type": "array",
+          "description": "按稀有度定词缀条数区间——稀有度是因、词条数是果",
+          "items": {
+            "type": "object",
+            "properties": {
+              "min": { "type": "integer", "minimum": 0 },
+              "max": { "type": "integer", "minimum": 0 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "tagBonus": {
+          "type": "number",
+          "description": "底材偏好标签加成：权重 = 基础 × (1 + 匹配标签数 × tagBonus)，多标签温和叠加不相乘（BRIEF §9.3）"
+        },
+        "postProcess": {
+          "type": "string",
+          "description": "离线掉落后处理策略：keepBest | allMaterials | lootBox | keepAll（BRIEF §9.6）"
+        },
+        "keepN": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "dungeon": {
+      "type": "object",
+      "description": "秘境默认值（BRIEF §8.2）；maxConcurrent 是技术护栏 12-20，非难度调节",
+      "properties": {
+        "maxConcurrentDefault": { "type": "integer", "minimum": 1 },
+        "maxConcurrentHardCap": { "type": "integer", "minimum": 1 },
+        "intervalJitter": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "display": {
+      "type": "object",
+      "description": "显示档位映射方式 = 数值区间表（BRIEF §10.2）；完整 50 档见 config/display-tiers.json",
+      "properties": {
+        "tierSource": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": {
+    "description": "允许扩展新的参数组（加参数 = 加 config 键，不动引擎）"
+  }
+}

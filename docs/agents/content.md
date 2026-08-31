@@ -6,8 +6,9 @@
 
 ```
 content/
-├── config/           # 结构性配置：realms、activities、resources、settings 等
-│                     #   （境界序列、曲线、槽位、阈值——引擎零写死数量的载体）
+├── config/           # 结构性配置：realms、activities、resources、dimensions、settings 等
+│                     #   （境界序列、曲线、槽位、维度表、阈值——引擎零写死数量的载体）
+├── effects/          # 效果定义：primitive 组合条目（武功/怪物/层主共用）
 ├── martial/          # 武功（招式 + 心法），字段 kind 区分
 ├── equipment/        # 装备基件与词缀池
 ├── monster/          # 怪物
@@ -16,7 +17,7 @@ content/
 ├── pill/             # 丹方与丹药
 ├── sect/             # 门派
 ├── event/            # 奇遇事件文本
-├── combat-text/      # 战斗文本模板与四档后果词库
+├── combat-text/      # 战斗文本模板（13 槽位）与后果词库（5 维分池）
 ├── lore/             # 世界观长文本（Markdown）：故事背景、势力关系等
 └── style-guide.md    # 文风指南：叙事字段必须遵守
 schemas/              # 与 content/ 一一对应的 JSON Schema（含 config/）
@@ -38,9 +39,10 @@ assets/               # 美术资产（MVP 允许为空）
 通用字段（各集合按需使用，Schema 为准）：
 
 - `prerequisites`：先修武功与等级要求（学此武功的前置）。
-- `damageType`：伤害类型（割 / 刺 / 瘀 / 内伤 / 抓伤），供战斗文本矩阵选档。
+- `masters`：门派条目的师父字段（`sect.masters`）。MVP 只留字段、无实际内容（可教武功池与贡献规则后续填充）；"学习武功"流程带条件检查点，做拜师门槛不动流程、只改配置。
 - `sectId` / `regionId`：条目的**门派归属** / **区域归属**，校验器据此检查覆盖与连通。
-- `tags`：标签集。**优先用标签表达语义，不建特殊类型**——例如纯叙事道具就是普通条目加 `tags:["quest"]` 且价值归零。
+- `tags`：标签集。**优先用标签表达语义，不建特殊类型**——例如纯叙事道具就是普通条目加 `tags:["quest"]` 且价值归零；战斗相关条目用**对象形态** `{ "moveTag": [...], "elementTag": [...] }` 做维度键，取值来自 config 维度表（见「combat-text 与效果」）。
+- `effects`：效果引用列表（`["eff-xxx"]`），指向 `content/effects/` 的效果定义条目；效果 = primitive 组合（候选集限定 §11.3 已标 ✅ 的 14 项），武功/怪物/层主共用。
 - `progression`：仅用于生产活动（采集、炼丹等），内容侧只放**等级参数** `maxLevel`（等级上限）与 `xpPerCycle`（每次产出获得的经验）。**玩家的当前等级与经验是运行时状态，存于存档，不写进内容条目**。等级与境界门槛共同决定可进入的采集区。
 - `rates`：活动直接产出的资源列表；**产出为物品（如药材）的活动可为空数组**，此时产出由物品表定义。
 
@@ -48,7 +50,57 @@ assets/               # 美术资产（MVP 允许为空）
 
 - 武功**品阶**：下乘 / 中乘 / 上乘 / 绝学
 - 装备**稀有度**：寻常 / 精良 / 罕见 / 绝世
-- **显示档位**（数值→造诣描述，由 config 推导，不写死在条目里）：不堪一击 / 初窥门径 / 稍有所成 / 登堂入室 / 炉火纯青 / 出神入化 / 返璞归真
+- **显示档位**（数值→造诣描述，由 config `displayTiers` 区间表推导，不写死在条目里）：**50 档**（完整列表见 `docs/design-spec-BRIEF.md` §10.2）；代表性档位：不堪一击 / 初窥门径 / 稍有所成 / 登堂入室 / 炉火纯青 / 出神入化 / 返璞归真
+
+## combat-text 与效果
+
+### 槽位（13 个，一律平等）
+
+**语法 = `{attacker}` 英文花括号**（非 xkx 的 `$N/$n/$w/$l`；已删 `{动词}` 与 xkx 代词）。槽位分两组，分组仅为理解方便，schema 不分两类：
+
+- 填空变量 9：`{attacker}` `{defender}` `{move}` `{weapon}` `{defenderWeapon}` `{limb}` `{damage}` `{consequence}` `{elementFlavor}`
+- 修饰片段 4：`{opening}` `{moveIntro}` `{weaponAction}` `{verb}`
+
+约束：`{elementFlavor}` 无属性时填**中性词，不可为空串**（否则产生"，，"）；招式名出现时用「」括起（「白虹贯日」）。
+
+**模板 = 片段序列**（条目自声明 `segments` 数组，可变长度：下乘 3 段／中乘 4 段／上乘 5-6 段／绝学 7 段）。示例：
+
+```text
+{opening}{attacker}{moveIntro}「{move}」，{weaponAction}{elementFlavor}，
+{weapon}{verb}{defender}的{limb}，{consequence}。
+```
+
+### 动词 → motion 推导链
+
+**motion 4 值**：`thrust`（刺）／`sweep`（扫）／`chop`（劈）／`grapple`（拿）。motion 是**动词的属性**，不是招式的属性——招式不自带 motion：
+
+```text
+动词抽取 = 招式声明 ∩ 兵器动词池 → 抽到 {verb} → 取该动词的 motion
+source    = 招式声明（内功/外功）
+后果词库  = motion × source × 伤害档 × 剩余生命档 × 系别
+```
+
+- 兵器类型决定动词池：剑→刺/点/撩/抹/扫/劈，刀→劈/砍/斩/削，棍→扫/砸/抡/戳，拳掌→拍/击/推/按
+- 推论：剑招（外功）只有 thrust/sweep/chop 画面，不会出现"拍飞"或"气血倒流"；「气血倒流」只属于内功招式（source 覆盖 motion）
+- 引擎做的只是"在一个被过滤的集合里随机"；搭配表（动词→motion、动词→部位白名单）是**内容不是引擎逻辑**
+
+### 后果词库分池（5 维）
+
+后果词库分池依据 = **伤害档（轻/中/重/濒死）× 剩余生命档（满/多/半/少/危）× 作用方式（内功/外功）× motion（4 值）× 系别**，档内词条风格一致；键的取值集见 `content/config/dimensions.json`。
+
+门控三条（详见 `content/style-guide.md`，四档一视同仁）：① 致命部位仅当 伤害档 ∈ {重, 濒死} 且 剩余生命档 ∈ {少, 危}；② 兵器类型决定动词池；③ 先定节奏档（急/缓/稳），各片段只从同档池抽。
+
+### 维度键
+
+- 条目 `tags` 用**对象形态**：`{ "moveTag": ["sword"], "elementTag": ["fire"] }`
+- `condition.dimension` 的取值来自 `content/config/dimensions.json`（维度表）；引擎只做**键取值 + 集合求交**，永不 parse 字符串
+- 加维度 / 加取值 = 加 config 表项，不动引擎
+
+### 效果定义（`content/effects/`）
+
+- 效果定义 = **primitive 组合**条目：`{ "id": "eff-xxx", "primitives": [...] }`
+- 候选集限定 §11.3 已标 ✅ 的 **13 项**（16 项穷举排除 连击 / 护盾 / 位移）；MVP 先用其中 9 个 + 另注册 2 个（见 `docs/design-spec-BRIEF.md` §13）
+- 武功/怪物/**层主**（秘境每波主怪）通过 `effects: [...]` 引用；层主带机制 = 用现有 primitive 组合，不新增引擎能力
 
 ## 批量生成工作流
 

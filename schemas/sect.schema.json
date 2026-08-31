@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sect.schema.json",
+  "title": "门派（content/sect/，每条目一文件）",
+  "description": "门派 = 武功池 + 缺省系别 + 生产加成（外加贡献货币、脉、师父）（BRIEF §6.1）。同一时间只属一个门派；已学武功必须与当前门派解耦（BRIEF §6.3 #2）。",
+  "type": "object",
+  "required": ["id", "name"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^sect-[a-z0-9-]+$",
+      "description": "如 sect-gb（丐帮）"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "defaultElements": {
+      "type": "array",
+      "description": "缺省系别（如丐帮 火/雷、武当 水/土、唐门 木/金）。取值来自 dimensions 的 element 维度（BRIEF §6.2）。",
+      "items": { "type": "string" }
+    },
+    "tempo": {
+      "type": "string",
+      "description": "节奏差异：爆发型 / 持久型 / 累积型（BRIEF §6.2）。叙事与文案用，引擎不读。"
+    },
+    "martialPool": {
+      "type": "array",
+      "description": "本门派可学的武功 id（content/martial/）。门派只是获取来源，不是所有权。",
+      "items": { "type": "string" }
+    },
+    "lineages": {
+      "type": "array",
+      "description": "脉（lineageId）：武功池的细分标签，不是玩家的身份选择——可同时拥有多个，由装配（招式 4 / 心法 3）来\"选\"（BRIEF §6.1）。",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string", "minLength": 1 },
+          "martialIds": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "productionBonus": {
+      "type": "array",
+      "description": "生产加成（采 Collection/炼丹效率等），走修饰符管线",
+      "items": { "type": "object" }
+    },
+    "contributionResourceId": {
+      "type": "string",
+      "description": "门派贡献对应的资源 id（content/config/resources.json）。MVP 中不可跨门派使用。"
+    },
+    "masters": {
+      "type": "array",
+      "description": "师父字段（sect.masters）。MVP 只留字段、无实际内容；\"学习武功\"流程带条件检查点，将来做拜师门槛不动流程、只改配置（CONTEXT.md 师承词条）。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "title": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "relations": {
+      "type": "array",
+      "description": "门派间关系是一张内容表（正派/魔教、同盟/敌对将来会变），引擎只查表（BRIEF §6.3 #4）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sectId": { "type": "string" },
+          "relation": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "entryCondition": {
+      "type": "object",
+      "description": "入门条件。MVP 条件恒真，但\"学习武功\"流程带条件检查点（BRIEF §6.4）",
+      "additionalProperties": {}
+    },
+    "art": { "type": "string" },
+    "description": {
+      "type": "string",
+      "description": "叙事文本（1~3 句），须遵守 content/style-guide.md"
+    }
+  },
+  "additionalProperties": false
+}

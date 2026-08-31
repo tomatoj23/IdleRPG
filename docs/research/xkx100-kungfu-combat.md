@@ -257,6 +257,8 @@ m_e = damage_effect（伤害加成）
 
 ## 7. 对 IdleRPG 内容设计的启示
 
+> **2026-08-31 标注（superseded）**：本节第 2-4 条（combat-text 四元组、槽位协议、伤害分档文案矩阵整体移植）已被战斗文本定稿取代，以 `docs/adr/0011-combat-text-system.md` 为准：槽位 13 个（`{attacker}` 语法）、模板 = 片段序列、后果词库 5 维分池（伤害类型概念已删除）。第 1 条（武学分类枚举）与第 6 条（结构化前置）已由 `kind` 字段与 `prerequisites` 字段实现，第 5 条（闪避/招架人格）仍有效——闪避独立模板族。
+
 对照 IdleRPG 现有 `content/config/`（realms.json、activities.json、resources.json、settings.json）与 combat-text 规划：
 
 1. **分类骨架可直接借鉴**： IdleRPG 的"境界序列"（realms）相当于 xkx 的内功/品阶线；建议在 config 中建立与 §2.2 对应的**武学分类枚举**（内功/轻功/拳掌/兵刃/身法招架），每个武功条目声明 `martialType` 与可激发用途，保持"引擎零题材词汇、分类只在 content"的既定原则。

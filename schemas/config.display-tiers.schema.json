@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "config.display-tiers.schema.json",
+  "title": "显示档位（content/config/display-tiers.json）",
+  "description": "显示档位 = 由数值推导出的造诣描述（CONTEXT.md 显示档位词条）。映射方式 = 数值区间表，非\"等级 ÷ 步长\"（BRIEF §10.2）。完整 50 档列表见 docs/design-spec-BRIEF.md §10.2；其中「超凡入圣」「天人合一」经定案豁免禁修仙词规则（content/style-guide.md）。",
+  "type": "object",
+  "required": ["tiers"],
+  "properties": {
+    "tiers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/tier" }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "tier": {
+      "type": "object",
+      "required": ["min", "max", "label"],
+      "properties": {
+        "min": { "type": "number", "description": "区间下界（含）" },
+        "max": { "type": "number", "description": "区间上界（含）" },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "档位词（50 档完整列表见 BRIEF §10.2）"
+        },
+        "presentation": {
+          "type": "object",
+          "description": "呈现参数（配色 / 飘字大小 / 屏震强度等），由 UI 层消费，引擎不读（ADR-0006）",
+          "properties": {
+            "color": { "type": "string" },
+            "fontScale": { "type": "number", "minimum": 0 },
+            "shake": { "type": "number", "minimum": 0 }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

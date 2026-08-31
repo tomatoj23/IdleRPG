@@ -73,14 +73,14 @@
 
 **分区**
 - 左竖栏（「修」高亮）+ 顶部资源栏
-- 主区左（40%）：人物全身立绘（持剑），周身 6 个六边形装备槽环绕（兵/冠/甲/腕/腰/靴，槽内一个字），槽边框有品质区分（三档），空槽为虚线
+- 主区左（40%）：人物全身立绘（持剑），周身 7 个六边形装备槽环绕（兵/冠/甲/腕/腰/裤/靴，槽内一个字），槽边框有稀有度区分（四档），空槽为虚线
 - 主区右（45%）上下两栏：
   - 「招式」4 行：方章首字 + 四字招式名（孤鸿印雪 / 白虹贯日 / 横江锁浪 / 踏雪寻梅）+ 品阶小字（下乘/中乘/上乘/绝学）+ 已装配标记
   - 「心法」3 行：同构
 - 底部一行：标签汇总「剑法 +2　毒系 +1」
 
 **结构提示词**
-> 16:9 desktop game UI, character loadout screen. Left vertical nav, top resource bar. Main left 40%: full-body character illustration holding a sword, surrounded by six hexagonal equipment slots, each slot containing one Chinese character, slot borders show three rarity tiers, one slot is empty with a dashed outline. Main right 45%: two stacked lists titled 招式 (four rows) and 心法 (three rows); each row has a small seal character, a four-character move name, a tiny tier label, and an equipped marker. Bottom one line of tag summary text.
+> 16:9 desktop game UI, character loadout screen. Left vertical nav, top resource bar. Main left 40%: full-body character illustration holding a sword, surrounded by seven hexagonal equipment slots, each slot containing one Chinese character, slot borders show four rarity tiers, one slot is empty with a dashed outline. Main right 45%: two stacked lists titled 招式 (four rows) and 心法 (three rows); each row has a small seal character, a four-character move name, a tiny tier label, and an equipped marker. Bottom one line of tag summary text.
 
 ## 5. 炼丹（生产链）
 
@@ -156,14 +156,14 @@
 ## 4. 角色养成
 
 **分区**
-- 上半（高 30%）：人物立绘 + 环绕 6 个六边形装备槽（槽内一个字，品质分三档）
+- 上半（高 30%）：人物立绘 + 环绕 7 个六边形装备槽（槽内一个字，稀有度分四档）
 - 中部（高 30%）：「招式」4 行，每行 方章首字 + 四字招式名 + 品阶小字 + 装配标记
 - 中下（高 20%）：「心法」3 行，同构
 - 底部一行：标签汇总「剑法 +2　毒系 +1」
 - 底部标签栏（「修」高亮）
 
 **结构提示词**
-> 9:16 mobile game UI, character loadout screen. Top section with character illustration and six hexagonal equipment slots arranged around it, each slot one Chinese character, three rarity tiers. Middle list titled 招式 with four rows (seal character, four-character move name, tier label, equipped marker). Below it list titled 心法 with three rows. One line of tag summary. Bottom tab bar with five items.
+> 9:16 mobile game UI, character loadout screen. Top section with character illustration and seven hexagonal equipment slots arranged around it, each slot one Chinese character, four rarity tiers. Middle list titled 招式 with four rows (seal character, four-character move name, tier label, equipped marker). Below it list titled 心法 with three rows. One line of tag summary. Bottom tab bar with five items.
 
 ## 5. 炼丹
 

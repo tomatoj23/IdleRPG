@@ -25,19 +25,19 @@
 
 | xkx100 资产 | 我们现有规划 | 缺口 | 承载决策 |
 |---|---|---|---|
-| 武功：招式表 + 学习前置 + 四维效果区间 + 伤害类型 | `content/martial/`（kind / 品阶 / 标签 / 冷却） | 无前置、无伤害类型、无效果区间 | 加 `prerequisites` 与 `damageType` 两字段；效果数值**生成期静态化**（品阶×招式序号经 config 公式算好写入），运行时修饰符只读 |
+| 武功：招式表 + 学习前置 + 四维效果区间 + 伤害类型 | `content/martial/`（kind / 品阶 / 标签 / 冷却） | 无前置、无效果区间 | 加 `prerequisites` 字段；xkx 的伤害类型（割/刺/瘀/内伤/抓伤）**有意不承载**——战斗文本改走 motion 体系（thrust/sweep/chop/grapple，2026-08-31 修订）；效果数值**生成期静态化**（品阶×招式序号经 config 公式算好写入），运行时修饰符只读 |
 | NPC 四类（师父/商人/任务发布人/氛围） | 只有 `monster/` | 无 NPC 概念 | 不立集合。师父 = `sect/` 条目的 `masters` 字段（承载可教武功池与贡献规则）；氛围怪靠 monster `tags` 表达；商人与任务发布人 MVG 不做 |
 | 任务四元组 + 24 种阶梯 + questobj | 无 | MVP 不做 | 不预留 schema（任务形态未定，预留大概率返工）；吸收模式：**纯叙事道具 = 普通条目 + `tags:["quest"]` + 价值归零**（标签代替特殊类型） |
 | 知识/生活技能 30 余种 | `activities` config（无等级） | 无技能等级 | activities 条目加 `progression`（`maxLevel` + `xpPerCycle` 等级参数，玩家等级与经验存存档，不进内容）；读书医术类明确不做 |
 | 品阶显示 50 档 | 无显示档位概念 | 数值→中文描述的推导 | config 加 `displayTiers`（数值区间 → 中文造诣名），战斗文本与 UI 实时推导，与掉落品级**正交** |
 | 内容三层放置（通用/门派/区域） | `content/` 平铺集合 | 无归属维度 | 保持平铺 + 条目 `sectId` / `regionId` 字段 + 校验器检查覆盖与连通（不做子目录分层，便于编辑器与 agent 批量操作） |
 | 图鉴自动生成（一集合一分册） | 无 | 功能缺口 | 新增 backlog 票（依赖 #15 编辑器或独立小票），schema 无需改动 |
-| 战斗文本矩阵（5 类伤害 × 6~9 档 + 闪避/招架/格挡模板） | `content/combat-text/` 规划中 | 无缺口 | 直接落位：模板为 JSON 条目 + 槽位变量，词库按档位分池，与 xkx100 `$N/$n/$w/$l` 槽位协议同构 |
+| 战斗文本矩阵（5 类伤害 × 6~9 档 + 闪避/招架/格挡模板） | `content/combat-text/` 规划中 | 无缺口（模型已重构） | 直接落位：13 槽位（`{attacker}` 风格，**不沿用** xkx 的 `$N/$n/$w/$l`）＋ 模板 = 片段序列（3-7 段随品阶）＋ 后果词库 **5 维分池**（伤害档 × 剩余生命档 × 作用方式 × motion × 系别）＋ 闪避/暴击/反伤/中毒专属模板池 |
 | 效果系统表达力（四维插值） | 修饰符聚合引擎 | 待确认 | 生成期静态值 + config 公式即可表达，运行时插值留 v2（无需 prototype 验证） |
 
 ## 三、决策清单
 
-1. **武功 schema 轻量扩展**：加 `prerequisites`（先修武功 + 等级）与 `damageType`（割/刺/瘀/内伤/抓伤），效果数值生成期静态化
+1. **武功 schema 轻量扩展**：加 `prerequisites`（先修武功 + 等级），效果数值生成期静态化；~~`damageType`（割/刺/瘀/内伤/抓伤）~~ **已删除**——战斗文本走 motion（thrust/sweep/chop/grapple）体系（2026-08-31 修订）
 2. **不立 NPC 集合**：师父归 `sect.masters`，氛围定位走 monster `tags`
 3. **不预留任务 schema**：吸收"标签代替特殊类型"原则进 `docs/agents/content.md`
 4. **activities 加等级参数**：内容侧 `progression`（`maxLevel` / `xpPerCycle`），玩家等级与经验存存档；服务采药区解锁；知识类技能不做
@@ -64,7 +64,7 @@
 ## 六、整合状态（2026-08-30 已完成）
 
 - ✅ `CONTEXT.md`：已新增「内容分档与归属」节（品阶 / 显示档位 / 前置 / 归属），命名语汇同步，旧语汇列入 Avoid；MVP 边界补三条明确不做（任务、知识技能、NPC 集合）
-- ✅ `docs/agents/content.md`：已补字段约定（prerequisites / damageType / sectId / regionId / tags / progression / rates 规则）与命名语汇表
+- ✅ `docs/agents/content.md`：已补字段约定（prerequisites / sectId / regionId / tags / progression / rates 规则）与命名语汇表；2026-08-31 修订：`damageType` 删除 → 新增「combat-text 与效果」小节（13 槽位 / motion 推导链 / 5 维分池 / 维度键 / effects 目录）
 - ✅ ADR：承载边界已升格为 `docs/adr/0008-content-capacity-boundary.md`（本文件降级为分析记录）
 - ✅ 命名空间变更安全：改名时内容文件尚无品阶/稀有度实例，未破坏任何已发布 id
 
