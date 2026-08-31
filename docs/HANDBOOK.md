@@ -41,7 +41,7 @@
 | 呈现 | 对峙式视觉层 + MUD 式叙事层；`core` 只吐结构化事件，不感知题材 | ADR-0006 |
 | 构筑 | 掉落驱动（底材 × 稀有度 × 词缀阶位）；流派由标签联动涌现 | ADR-0005 |
 | 内容管线 | `content/` 12 个集合 + `config/`（结构性配置）；每条目一 JSON 文件；id 一经发布不可变更 | `content.md` |
-| 兽 | 本质是装备（修饰符 + 叙事片段），不是战斗单位；七系各一只**机制放大器**；独立随从栏不占 7 槽 | ADR-0013 |
+| 兽 | 本质是装备（修饰符 + 叙事片段），不是战斗单位；七系各一只**机制放大器**；独立随从栏不占 7 槽；数据并入 `equipment/`（kind: beast，slot=beast），获取走 sect `exchange` 兑换 | `CONTEXT.md`／ADR-0013 |
 | 门派 | 武功池 + 缺省系别 + 生产加成三件套；脉是武功池标签、非身份选择；已学武功与门派解耦 | ADR-0014 |
 | 成长与反馈 | 突破偏向选择替代天赋树；纪录 + 叙事分档补中频反馈；专精靠词缀涌现 | ADR-0015 |
 
@@ -49,7 +49,7 @@
 
 门派 3 ／ 秘境 3 ／ 兽 2 ／ 底材 42 ／ 词缀池 20+ 条 × 3 阶 ／ 招式 4 · 心法 3 ／ primitive 9 个使用 + 2 个注册 ／ 出招调制器 4 ／ 内力最小形态 ／ 只做闪避（不做招架/格挡）
 
-**明确不做**：任务体系、知识/生活技能、独立 NPC 集合、换派偷师、突破失败（走火入魔）、招架/格挡、`itemLevel`（ADR-0008、BRIEF §13）
+**明确不做**：任务体系、知识/生活技能、独立 NPC 集合、换派偷师、突破失败（走火入魔）、招架/格挡、奇遇（形态未定，`event/` 仅最小骨架占位）、`itemLevel`（ADR-0008、BRIEF §13）
 
 ## 当前状态
 
@@ -57,4 +57,4 @@
 - ✅ **Schema 16 个**：12 个集合全覆盖（`config` 拆 6 类 + effects / martial / equipment / monster / dungeon / herb / pill / sect / event / combat-text）；`lore/` 是 Markdown，由 `style-guide.md` 约束，无 JSON schema
 - 🚧 `content/` 条目填充（建议从 `config/` 结构性配置入手：realms / dimensions / settings / activities / resources）
 - 🚧 `content:check` 脚本随 monorepo 工程落地（当前纯文档阶段，Schema 为草案）
-- ⏸ 待决：① 兽的数据归属（`beast/` 独立集合 vs 并入 `equipment/` 的 beast kind，`content.md` 目录未列）② 奇遇形态未定（`event/` 仅有最小骨架）
+- ✅ 待决清零：兽的数据归属已定——并入 `equipment/`（kind: beast，slot=beast），获取走 sect `exchange` 兑换（ADR-0013）；奇遇明确延后出 MVP（`event/` 仅最小骨架占位）

@@ -11,7 +11,8 @@
     "motion",
     "element",
     "moveTag",
-    "elementTag"
+    "elementTag",
+    "slot"
   ],
   "propertyNames": {
     "pattern": "^[a-z][a-zA-Z0-9]*$"
