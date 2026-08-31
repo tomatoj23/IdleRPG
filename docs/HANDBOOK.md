@@ -40,8 +40,8 @@
 | 装备 | **7 槽**（兵/冠/甲/腕/腰/裤/靴）+ 独立随从栏（兽）；稀有度四档；MVP 底材 42 个（约 294 项） | `CONTEXT.md`／BRIEF §9、§13 |
 | 呈现 | 对峙式视觉层 + MUD 式叙事层；`core` 只吐结构化事件，不感知题材 | ADR-0006 |
 | 构筑 | 掉落驱动（底材 × 稀有度 × 词缀阶位）；流派由标签联动涌现 | ADR-0005 |
-| 内容管线 | `content/` 12 个集合 + `config/`（结构性配置）；每条目一 JSON 文件；id 一经发布不可变更 | `content.md` |
-| 兽 | 本质是装备（修饰符 + 叙事片段），不是战斗单位；七系各一只**机制放大器**；独立随从栏不占 7 槽 | ADR-0013 |
+| 内容管线 | `content/` 13 个集合 + `config/`（结构性配置）；每条目一 JSON 文件；id 一经发布不可变更 | `content.md` |
+| 兽 | 本质是装备（修饰符 + 叙事片段），不是战斗单位；七系各一只**机制放大器**；独立随从栏不占 7 槽；数据在独立 `beast/` 集合（第 13 集合），获取走 sect `exchange` 兑换 | ADR-0013 |
 | 门派 | 武功池 + 缺省系别 + 生产加成三件套；脉是武功池标签、非身份选择；已学武功与门派解耦 | ADR-0014 |
 | 成长与反馈 | 突破偏向选择替代天赋树；纪录 + 叙事分档补中频反馈；专精靠词缀涌现 | ADR-0015 |
 
@@ -54,7 +54,8 @@
 ## 当前状态
 
 - ✅ 术语词典、文风指南、内容管线约定、**15 个 ADR**、BRIEF 审计遗留清零（§12.6）
-- ✅ **Schema 16 个**：12 个集合全覆盖（`config` 拆 6 类 + effects / martial / equipment / monster / dungeon / herb / pill / sect / event / combat-text）；`lore/` 是 Markdown，由 `style-guide.md` 约束，无 JSON schema
+- ✅ **Schema 17 个**：13 个集合全覆盖（`config` 拆 6 类 + effects / martial / equipment / beast / monster / dungeon / herb / pill / sect / event / combat-text）；`lore/` 是 Markdown，由 `style-guide.md` 约束，无 JSON schema
+- ✅ 兽数据归属已定：独立 `beast/` 集合（第 13 集合），获取走 sect `exchange` 贡献兑换（ADR-0013）
 - 🚧 `content/` 条目填充（建议从 `config/` 结构性配置入手：realms / dimensions / settings / activities / resources）
 - 🚧 `content:check` 脚本随 monorepo 工程落地（当前纯文档阶段，Schema 为草案）
-- ⏸ 待决：① 兽的数据归属（`beast/` 独立集合 vs 并入 `equipment/` 的 beast kind，`content.md` 目录未列）② 奇遇形态未定（`event/` 仅有最小骨架）
+- ⏸ 待决：奇遇形态未定（`event/` 仅有最小骨架；形态未定的概念不进术语表）

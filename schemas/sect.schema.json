@@ -49,6 +49,19 @@
       "type": "string",
       "description": "门派贡献对应的资源 id（content/config/resources.json）。MVP 中不可跨门派使用。"
     },
+    "exchange": {
+      "type": "array",
+      "description": "贡献兑换清单（门派商店货架）：以贡献货币计价，引用任意内容条目 id（兽、秘籍、丹方等），加商品 = 纯内容追加。兽（content/beast/）的获取走这里（ADR-0013）。",
+      "items": {
+        "type": "object",
+        "required": ["itemId", "cost"],
+        "properties": {
+          "itemId": { "type": "string", "description": "被兑换条目的 id（content/ 任意集合）" },
+          "cost": { "type": "number", "minimum": 0, "description": "贡献货币价格" }
+        },
+        "additionalProperties": false
+      }
+    },
     "masters": {
       "type": "array",
       "description": "师父字段（sect.masters）。MVP 只留字段、无实际内容；\"学习武功\"流程带条件检查点，将来做拜师门槛不动流程、只改配置（CONTEXT.md 师承词条）。",

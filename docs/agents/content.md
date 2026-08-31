@@ -11,6 +11,8 @@ content/
 ├── effects/          # 效果定义：primitive 组合条目（武功/怪物/层主共用）
 ├── martial/          # 武功（招式 + 心法），字段 kind 区分
 ├── equipment/        # 装备基件与词缀池
+├── beast/            # 兽（随从栏内容，一系一只）：修饰符 + 叙事片段；获取走 sect exchange 兑换，
+│                     #   不走掉落管线（ADR-0013）
 ├── monster/          # 怪物
 ├── dungeon/          # 秘境与层配置
 ├── herb/             # 药材
