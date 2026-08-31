@@ -7,3 +7,6 @@ dist/
 
 # 归档的 UI 探索稿（保留本地，不入库）
 docs/research/ui-mockups/archive/
+
+# 设计会话记录已归档至 docs/archive/，入库保存，供后续查找决策依据
+# （正式文档 CONTEXT.md / ADR 生成后仍保留，不删除）

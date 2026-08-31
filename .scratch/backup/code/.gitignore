@@ -1,9 +1,0 @@
-node_modules/
-dist/
-.pnpm-store/
-*.local
-*.tsbuildinfo
-.vite/
-
-# 废弃的 UI 探索稿（保留本地，不入库）
-docs/research/ui-mockups/archive/
