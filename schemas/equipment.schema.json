@@ -1,13 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "equipment.schema.json",
-  "title": "装备：底材、词缀与兽（content/equipment/，每条目一文件）",
-  "description": "底材 = 分层条目（高层掉另一个底材，不是同一条目加 itemLevel）；词缀条目内含 3 阶数值表（对「每条目一文件」的有意例外，BRIEF §9.7）；兽 = 修饰符 + 叙事片段，走随从栏不走掉落管线（ADR-0013）。由 oneOf 分流（base / affix / beast）。依据 ADR-0012、ADR-0013、BRIEF §9。",
+  "title": "装备：底材与词缀（content/equipment/，每条目一文件）",
+  "description": "底材 = 分层条目（高层掉另一个底材，不是同一条目加 itemLevel）；词缀条目内含 3 阶数值表（对「每条目一文件」的有意例外，BRIEF §9.7）。由 oneOf 分流。依据 ADR-0012、BRIEF §9。",
   "type": "object",
   "oneOf": [
     { "$ref": "#/definitions/base" },
-    { "$ref": "#/definitions/affix" },
-    { "$ref": "#/definitions/beast" }
+    { "$ref": "#/definitions/affix" }
   ],
   "definitions": {
     "base": {
@@ -24,7 +23,7 @@
         "name": { "type": "string", "minLength": 1 },
         "slot": {
           "type": "string",
-          "description": "槽位。取值来自 content/config/dimensions.json 的 slot 维度；底材只走 7 槽（兵/冠/甲/腕/腰/裤/靴），随从栏（beast）只供兽支使用。见 CONTEXT.md 装备槽词条——槽数是结构性配置，引擎零写死。"
+          "description": "槽位。取值来自 content/config/dimensions.json 的 slot 维度；当前 7 槽（兵/冠/甲/腕/腰/裤/靴）见 CONTEXT.md 装备槽词条——槽数是结构性配置，引擎零写死。"
         },
         "floorRange": {
           "type": "object",
@@ -97,45 +96,6 @@
           "description": "是否特色词缀：不是数值，是改变机制（如\"你的中毒会传染\"）；绝世（5~6 词缀）含一条。复用 condition + primitive 表达，引擎零新增（BRIEF §9.4）"
         },
         "description": { "type": "string", "description": "叙事文本，须遵守 content/style-guide.md" }
-      },
-      "additionalProperties": false
-    },
-    "beast": {
-      "title": "兽（驭兽）",
-      "type": "object",
-      "required": ["id", "kind", "name", "slot", "element", "modifiers"],
-      "properties": {
-        "id": {
-          "type": "string",
-          "pattern": "^beast-[a-z0-9-]+$",
-          "description": "如 beast-wood-wasp（木系毒蜂）。前缀用全词 kind（与 base-/affix- 一致），非集合缩写"
-        },
-        "kind": { "const": "beast" },
-        "name": { "type": "string", "minLength": 1 },
-        "slot": {
-          "const": "beast",
-          "description": "随从栏。kind: beast ⟹ slot: beast，由 schema 锁死（ADR-0013）"
-        },
-        "element": {
-          "type": "string",
-          "description": "所属系别（身份属性，决定放大哪个系），取值来自 dimensions 的 element 维度。单值而非 tags 对象——不是供引擎求交的过滤维度"
-        },
-        "modifiers": {
-          "type": "array",
-          "items": { "type": "object" },
-          "description": "修饰符集合——兽的本体（ADR-0013：兽 = 一组修饰符）"
-        },
-        "effects": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "效果引用列表（content/effects/），表达机制放大器行为（毒蜂多体化、雷兽 on-crit 追加）；简单数值（石龟减伤）直挂 modifiers"
-        },
-        "narrative": {
-          "type": "string",
-          "description": "战斗文本注入片段（如石龟\"替你挡下\"），供 combat-text 模板系统消费（ADR-0011）"
-        },
-        "art": { "type": "string", "description": "覆盖默认 assets/portraits/equipment/<id>.png 时的相对路径" },
-        "description": { "type": "string", "description": "图鉴式描述，须遵守 content/style-guide.md" }
       },
       "additionalProperties": false
     }

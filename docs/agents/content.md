@@ -10,13 +10,13 @@ content/
 │                     #   （境界序列、曲线、槽位、维度表、阈值——引擎零写死数量的载体）
 ├── effects/          # 效果定义：primitive 组合条目（武功/怪物/层主共用）
 ├── martial/          # 武功（招式 + 心法），字段 kind 区分
-├── equipment/        # 装备：底材、词缀池与兽（kind: beast，随从栏，ADR-0013）
+├── equipment/        # 装备基件与词缀池
 ├── monster/          # 怪物
 ├── dungeon/          # 秘境与层配置
 ├── herb/             # 药材
 ├── pill/             # 丹方与丹药
 ├── sect/             # 门派
-├── event/            # 奇遇事件文本（形态未定、非 MVP：仅最小骨架占位）
+├── event/            # 奇遇事件文本
 ├── combat-text/      # 战斗文本模板（13 槽位）与后果词库（5 维分池）
 ├── lore/             # 世界观长文本（Markdown）：故事背景、势力关系等
 └── style-guide.md    # 文风指南：叙事字段必须遵守
